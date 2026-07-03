@@ -6,6 +6,19 @@ export default {
   name: 'interactionCreate',
   once: false,
   async execute(interaction: Interaction, client: BotClient) {
+    if (interaction.isAutocomplete()) {
+      const command = client.commands.get(interaction.commandName);
+      if (!command?.autocomplete) return;
+
+      try {
+        await command.autocomplete(interaction, client);
+      } catch (error) {
+        console.error(`[interactionCreate] Error en autocomplete de /${interaction.commandName}:`, error);
+        await interaction.respond([]).catch(() => undefined);
+      }
+      return;
+    }
+
     if (interaction.isChatInputCommand()) {
       const command = client.commands.get(interaction.commandName);
       if (!command) return;

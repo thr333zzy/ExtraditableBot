@@ -3,6 +3,12 @@ import type { Command } from '../../structures/Command';
 import { requireVoiceChannel } from '../../utils/musicChecks';
 import { formatDuration } from '../../utils/formatDuration';
 
+const AUTOCOMPLETE_RESULT_LIMIT = 10;
+
+function truncate(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName('play')
@@ -11,8 +17,43 @@ const command: Command = {
       option
         .setName('busqueda')
         .setDescription('Nombre de la canción o un link de YouTube/Spotify/Apple Music')
-        .setRequired(true),
+        .setRequired(true)
+        .setAutocomplete(true),
     ) as SlashCommandBuilder,
+
+  async autocomplete(interaction, client) {
+    const focused = interaction.options.getFocused();
+
+    if (focused.length < 2 || /^https?:\/\//i.test(focused) || !client.lavalink.useable) {
+      await interaction.respond([]).catch(() => undefined);
+      return;
+    }
+
+    const node = client.lavalink.nodeManager.leastUsedNodes()[0];
+    if (!node) {
+      await interaction.respond([]).catch(() => undefined);
+      return;
+    }
+
+    const result = await node
+      .search({ query: focused, source: 'ytsearch' }, interaction.user)
+      .catch(() => undefined);
+
+    if (!result || result.loadType === 'error' || result.tracks.length === 0) {
+      await interaction.respond([]).catch(() => undefined);
+      return;
+    }
+
+    const choices = result.tracks.slice(0, AUTOCOMPLETE_RESULT_LIMIT).map((track) => ({
+      name: truncate(
+        `${track.info.title} - ${track.info.author} (${formatDuration(track.info.duration)})`,
+        100,
+      ),
+      value: truncate(track.info.uri, 100),
+    }));
+
+    await interaction.respond(choices).catch(() => undefined);
+  },
 
   async execute(interaction, client) {
     const channel = await requireVoiceChannel(interaction);
