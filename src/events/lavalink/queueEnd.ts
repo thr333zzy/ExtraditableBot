@@ -6,7 +6,8 @@ export default {
   name: 'queueEnd',
   once: false,
   emitter: 'lavalink' as const,
-  async execute(player: Player, client: BotClient) {
+  // lavalink-client emite (player, track, payload) — el eventHandler añade `client` al final.
+  async execute(player: Player, _track: unknown, _payload: unknown, client: BotClient) {
     const info = client.nowPlayingMessages.get(player.guildId);
     if (!info) return;
 

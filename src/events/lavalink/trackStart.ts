@@ -8,7 +8,8 @@ export default {
   name: 'trackStart',
   once: false,
   emitter: 'lavalink' as const,
-  async execute(player: Player, track: Track, client: BotClient) {
+  // lavalink-client emite (player, track, payload) — el eventHandler añade `client` al final.
+  async execute(player: Player, track: Track, _payload: unknown, client: BotClient) {
     const channel = client.channels.cache.get(player.textChannelId ?? '');
     if (!(channel instanceof TextChannel)) return;
 
