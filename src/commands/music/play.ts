@@ -79,6 +79,13 @@ const command: Command = {
     const result = await player.search({ query }, interaction.user);
 
     if (result.loadType === 'error') {
+      if (/open\.spotify\.com\/playlist\//i.test(query)) {
+        await interaction.editReply(
+          '❌ Spotify no permite leer playlists con este tipo de credenciales (restricción de Spotify, no de este bot). ' +
+            'Busca esta misma playlist en YouTube o YouTube Music y pega ese link en su lugar.',
+        );
+        return;
+      }
       await interaction.editReply(`Error al buscar: ${result.exception?.message ?? 'desconocido'}`);
       return;
     }

@@ -40,16 +40,13 @@ Rellena `.env` con:
 - `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`: créalos gratis en [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) → **Create app** (no necesitas configurar Redirect URI para esto, solo copia el Client ID/Secret).
 - Deja `LAVALINK_*` con los valores por defecto para desarrollo local.
 
-### Playlists de Spotify (`SPOTIFY_SP_DC`)
+### Limitación conocida: playlists de Spotify
 
-Con solo `SPOTIFY_CLIENT_ID`/`SPOTIFY_CLIENT_SECRET`, las **canciones individuales y la búsqueda de Spotify funcionan**, pero Spotify bloquea la lectura de **playlists** para credenciales de solo-app (error 401 "Valid user authentication required" — es una restricción del lado de Spotify, no de este bot). Para poder reproducir playlists, LavaSrc necesita la cookie de sesión `sp_dc` de una cuenta de Spotify logueada:
+Con `SPOTIFY_CLIENT_ID`/`SPOTIFY_CLIENT_SECRET`, las **canciones individuales y la búsqueda de Spotify funcionan perfecto**. Pero Spotify bloquea la lectura de **playlists** para credenciales de solo-app (error 401 "Valid user authentication required" al pegar un link de playlist — confirmado que es una restricción del lado de Spotify, no un bug de este bot). Arreglarlo de verdad requeriría correr un servicio proxy externo aparte (`customTokenEndpoint` de LavaSrc), que es frágil y se rompe cada vez que Spotify cambia su protección anti-scraping, así que no vale la pena la complejidad.
 
-1. Abre [open.spotify.com](https://open.spotify.com) en tu navegador e inicia sesión con tu cuenta de Spotify.
-2. Abre las herramientas de desarrollador (F12) → pestaña **Application** (Chrome/Edge) o **Almacenamiento** (Firefox) → **Cookies** → `https://open.spotify.com`.
-3. Busca la cookie llamada `sp_dc` y copia su valor.
-4. Pégalo en `SPOTIFY_SP_DC` en tu `.env`.
+**Workaround:** para reproducir una playlist, busca esa misma playlist en YouTube o YouTube Music y pega ese link en `/play` — funciona sin restricciones.
 
-⚠️ **Trata ese valor como una contraseña** — es literalmente la sesión de tu cuenta de Spotify. No la compartas ni la subas a ningún repositorio (ya está cubierta por `.gitignore` al estar en `.env`). Es un método no oficial (no es parte de la API pública de Spotify), así que puede dejar de funcionar si Spotify invalida la cookie; en ese caso solo hay que repetir estos pasos para obtener una nueva.
+La variable `SPOTIFY_SP_DC` en `.env` (cookie de sesión `sp_dc` de una cuenta de Spotify) queda configurada pero actualmente solo la usaría LavaSrc para la API de letras (lyrics), que este bot no expone todavía — no ayuda con las playlists.
 
 ### Apple Music (opcional)
 
