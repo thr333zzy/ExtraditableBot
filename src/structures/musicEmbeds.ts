@@ -1,7 +1,7 @@
 import { EmbedBuilder, type User } from 'discord.js';
 import type { Player, Track, UnresolvedTrack } from 'lavalink-client';
 import type { BotClient } from './BotClient';
-import { formatDuration, progressBar } from '../utils/formatDuration';
+import { formatDuration } from '../utils/formatDuration';
 import { paginateQueue } from '../utils/paginateQueue';
 
 const COLOR = 0x8b5cf6;
@@ -20,16 +20,18 @@ export function nowPlayingEmbed(player: Player, track: Track, client: BotClient)
       name: client.user?.username ?? 'ExtraditableBot',
       iconURL: client.user?.displayAvatarURL(),
     })
-    .setDescription(`**${trackNumber.toString().padStart(2, '0')}** · ${requesterMention(track)}`)
+    .setDescription(
+      `**${trackNumber.toString().padStart(2, '0')}** · ${requesterMention(track)}`,
+    )
     .setTitle(track.info.title)
     .setURL(track.info.uri)
-    .addFields(
-      { name: 'Artista', value: track.info.author || 'Desconocido', inline: true },
-      { name: 'Duración', value: formatDuration(track.info.duration), inline: true },
-      { name: 'Fuente', value: track.info.sourceName ?? 'desconocida', inline: true },
-      { name: 'Progreso', value: progressBar(player.position ?? 0, track.info.duration) },
-    )
-    .setFooter({ text: `Volumen: ${player.volume}% | Repetir: ${player.repeatMode ?? 'off'}` });
+    .addFields({
+      name: '​',
+      value: `${track.info.author || 'Desconocido'}\n${formatDuration(track.info.duration)}`,
+    })
+    .setFooter({
+      text: `Volumen: ${player.volume}% | Repetir: ${player.repeatMode ?? 'off'} | ${track.info.sourceName ?? 'desconocida'}`,
+    });
 
   if (track.info.artworkUrl) embed.setImage(track.info.artworkUrl);
 
