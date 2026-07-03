@@ -1,31 +1,37 @@
 import { EmbedBuilder, type User } from 'discord.js';
 import type { Player, Track, UnresolvedTrack } from 'lavalink-client';
+import type { BotClient } from './BotClient';
 import { formatDuration, progressBar } from '../utils/formatDuration';
 import { paginateQueue } from '../utils/paginateQueue';
 
-const COLOR = 0x5865f2;
+const COLOR = 0x8b5cf6;
 
-function requesterTag(track: Track | UnresolvedTrack): string {
+function requesterMention(track: Track | UnresolvedTrack): string {
   const requester = track.requester as Partial<User> | undefined;
-  if (!requester) return 'Desconocido';
-  return requester.username ?? 'Desconocido';
+  return requester?.id ? `<@${requester.id}>` : 'Desconocido';
 }
 
-export function nowPlayingEmbed(player: Player, track: Track): EmbedBuilder {
+export function nowPlayingEmbed(player: Player, track: Track, client: BotClient): EmbedBuilder {
+  const trackNumber = client.trackCounters.get(player.guildId) ?? 1;
+
   const embed = new EmbedBuilder()
     .setColor(COLOR)
-    .setAuthor({ name: '🎵 Sonando ahora' })
+    .setAuthor({
+      name: client.user?.username ?? 'ExtraditableBot',
+      iconURL: client.user?.displayAvatarURL(),
+    })
+    .setDescription(`**${trackNumber.toString().padStart(2, '0')}** · ${requesterMention(track)}`)
     .setTitle(track.info.title)
     .setURL(track.info.uri)
     .addFields(
       { name: 'Artista', value: track.info.author || 'Desconocido', inline: true },
+      { name: 'Duración', value: formatDuration(track.info.duration), inline: true },
       { name: 'Fuente', value: track.info.sourceName ?? 'desconocida', inline: true },
-      { name: 'Pedido por', value: requesterTag(track), inline: true },
+      { name: 'Progreso', value: progressBar(player.position ?? 0, track.info.duration) },
     )
-    .setDescription(progressBar(player.position ?? 0, track.info.duration))
     .setFooter({ text: `Volumen: ${player.volume}% | Repetir: ${player.repeatMode ?? 'off'}` });
 
-  if (track.info.artworkUrl) embed.setThumbnail(track.info.artworkUrl);
+  if (track.info.artworkUrl) embed.setImage(track.info.artworkUrl);
 
   return embed;
 }

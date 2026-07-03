@@ -2,7 +2,7 @@ import { TextChannel } from 'discord.js';
 import type { Player, Track } from 'lavalink-client';
 import type { BotClient } from '../../structures/BotClient';
 import { nowPlayingEmbed } from '../../structures/musicEmbeds';
-import { nowPlayingRow } from '../../structures/musicButtons';
+import { nowPlayingRow, playerOptionsRow } from '../../structures/musicButtons';
 
 export default {
   name: 'trackStart',
@@ -18,12 +18,18 @@ export default {
       await channel.messages.delete(previous.messageId).catch(() => undefined);
     }
 
-    const message = await channel
-      .send({
-        embeds: [nowPlayingEmbed(player, track)],
-        components: [nowPlayingRow(player.guildId, player.paused)],
-      })
-      .catch(() => undefined);
+    client.trackCounters.set(player.guildId, (client.trackCounters.get(player.guildId) ?? 0) + 1);
+
+    let message;
+    try {
+      message = await channel.send({
+        embeds: [nowPlayingEmbed(player, track, client)],
+        components: [nowPlayingRow(player.guildId, player.paused), playerOptionsRow(player.guildId, player)],
+      });
+    } catch (error) {
+      console.error('[trackStart] Error enviando el embed de Now Playing:', error);
+      return;
+    }
 
     if (message) {
       client.nowPlayingMessages.set(player.guildId, {

@@ -11,6 +11,9 @@ export class BotClient extends Client {
   public nowPlayingMessages: Collection<string, { channelId: string; messageId: string }> =
     new Collection();
 
+  /** Guild -> number of tracks played this session, for the "N · requester" line on the embed. */
+  public trackCounters: Collection<string, number> = new Collection();
+
   constructor() {
     super({
       intents: [

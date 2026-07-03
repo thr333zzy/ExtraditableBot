@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../../structures/Command';
 import { requireActivePlayer } from '../../utils/musicChecks';
 import { nowPlayingEmbed } from '../../structures/musicEmbeds';
-import { nowPlayingRow } from '../../structures/musicButtons';
+import { nowPlayingRow, playerOptionsRow } from '../../structures/musicButtons';
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -20,8 +20,8 @@ const command: Command = {
     }
 
     await interaction.reply({
-      embeds: [nowPlayingEmbed(player, current)],
-      components: [nowPlayingRow(interaction.guildId!, player.paused)],
+      embeds: [nowPlayingEmbed(player, current, client)],
+      components: [nowPlayingRow(interaction.guildId!, player.paused), playerOptionsRow(interaction.guildId!, player)],
     });
   },
 };
