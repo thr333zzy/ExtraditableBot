@@ -1,0 +1,25 @@
+services:
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4
+    container_name: extraditablebot-lavalink
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - _JAVA_OPTIONS=-Xmx1G
+      - SERVER_PORT=2333
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD:-youshallnotpass}
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
+      - lavalink_plugins:/opt/Lavalink/plugins/
+    ports:
+      - "2333:2333"
+    networks:
+      - extraditablebot
+
+networks:
+  extraditablebot:
+    driver: bridge
+
+volumes:
+  lavalink_plugins:
