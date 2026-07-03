@@ -33,6 +33,14 @@ async function main() {
     console.log(
       `[deploy-commands] ${body.length} comandos registrados en el servidor ${env.DISCORD_GUILD_ID} (instantáneo).`,
     );
+
+    // Evita que queden comandos globales viejos compitiendo por nombre con los del servidor
+    // (mismo nombre, definiciones desincronizadas -> comportamiento ambiguo/roto en el cliente).
+    const globalCommands = await rest.get(Routes.applicationCommands(env.DISCORD_CLIENT_ID));
+    if (Array.isArray(globalCommands) && globalCommands.length > 0) {
+      await rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body: [] });
+      console.log(`[deploy-commands] Se borraron ${globalCommands.length} comandos globales obsoletos.`);
+    }
   } else {
     await rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body });
     console.log(
