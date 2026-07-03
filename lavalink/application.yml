@@ -65,6 +65,10 @@ plugins:
     spotify:
       clientId: "${SPOTIFY_CLIENT_ID:}"
       clientSecret: "${SPOTIFY_CLIENT_SECRET:}"
+      # Spotify bloquea la lectura de playlists (/playlists/{id}/items) para tokens de solo-app
+      # (client id/secret). spDc es la cookie de sesión de una cuenta de Spotify logueada, y permite
+      # a LavaSrc leer playlists impersonando esa cuenta. Ver README para cómo obtenerla.
+      spDc: "${SPOTIFY_SP_DC:}"
       countryCode: "US"
       playlistLoadLimit: 6
       albumLoadLimit: 6

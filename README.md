@@ -40,6 +40,17 @@ Rellena `.env` con:
 - `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`: créalos gratis en [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) → **Create app** (no necesitas configurar Redirect URI para esto, solo copia el Client ID/Secret).
 - Deja `LAVALINK_*` con los valores por defecto para desarrollo local.
 
+### Playlists de Spotify (`SPOTIFY_SP_DC`)
+
+Con solo `SPOTIFY_CLIENT_ID`/`SPOTIFY_CLIENT_SECRET`, las **canciones individuales y la búsqueda de Spotify funcionan**, pero Spotify bloquea la lectura de **playlists** para credenciales de solo-app (error 401 "Valid user authentication required" — es una restricción del lado de Spotify, no de este bot). Para poder reproducir playlists, LavaSrc necesita la cookie de sesión `sp_dc` de una cuenta de Spotify logueada:
+
+1. Abre [open.spotify.com](https://open.spotify.com) en tu navegador e inicia sesión con tu cuenta de Spotify.
+2. Abre las herramientas de desarrollador (F12) → pestaña **Application** (Chrome/Edge) o **Almacenamiento** (Firefox) → **Cookies** → `https://open.spotify.com`.
+3. Busca la cookie llamada `sp_dc` y copia su valor.
+4. Pégalo en `SPOTIFY_SP_DC` en tu `.env`.
+
+⚠️ **Trata ese valor como una contraseña** — es literalmente la sesión de tu cuenta de Spotify. No la compartas ni la subas a ningún repositorio (ya está cubierta por `.gitignore` al estar en `.env`). Es un método no oficial (no es parte de la API pública de Spotify), así que puede dejar de funcionar si Spotify invalida la cookie; en ese caso solo hay que repetir estos pasos para obtener una nueva.
+
 ### Apple Music (opcional)
 
 Por defecto Apple Music está **desactivado** en `lavalink/application.yml` (`sources.applemusic: false`) porque requiere una private key de MusicKit. Si quieres activarlo:
