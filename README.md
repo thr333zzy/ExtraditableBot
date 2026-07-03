@@ -16,7 +16,7 @@ Bot de música profesional para Discord con soporte para **YouTube**, **Spotify*
 2. **Docker Desktop** — necesario para correr Lavalink sin instalar Java manualmente. Descárgalo de [docker.com](https://www.docker.com/products/docker-desktop/).
 3. Una aplicación de bot de Discord (ver abajo).
 4. (Opcional pero recomendado) Credenciales de Spotify para que `/play` funcione con links de Spotify.
-5. (Opcional) Credenciales de Apple Music.
+5. (Opcional) Token del reproductor web de Apple Music para que `/play` funcione con links de Apple Music (gratis, ver sección Apple Music).
 
 ## 1. Crear la aplicación de Discord
 
@@ -48,21 +48,22 @@ Con `SPOTIFY_CLIENT_ID`/`SPOTIFY_CLIENT_SECRET`, las **canciones individuales y 
 
 La variable `SPOTIFY_SP_DC` en `.env` (cookie de sesión `sp_dc` de una cuenta de Spotify) queda configurada pero actualmente solo la usaría LavaSrc para la API de letras (lyrics), que este bot no expone todavía — no ayuda con las playlists.
 
-### Apple Music (opcional)
+### Apple Music
 
-Por defecto Apple Music está **desactivado** en `lavalink/application.yml` (`sources.applemusic: false`) porque requiere una private key de MusicKit. Si quieres activarlo:
+Apple Music está **activado** (`sources.applemusic: true` en `lavalink/application.yml`) y funciona con el token JWT público que usa el propio reproductor web de music.apple.com — **no necesitas cuenta de Apple ni de Apple Developer**.
 
-1. Genera una key en [developer.apple.com/musickit](https://developer.apple.com/musickit/) (necesitas cuenta de Apple Developer).
-2. Descarga el archivo `.p8`, colócalo en `lavalink/AuthKey.p8`.
-3. En `lavalink/application.yml`, bajo `plugins.lavasrc.sources`, cambia `applemusic: false` a `true`, y bajo `plugins.lavasrc.applemusic` agrega:
-   ```yaml
-   keyID: "TU_KEY_ID"
-   teamID: "TU_TEAM_ID"
-   musicKitKey: |
-     -----BEGIN PRIVATE KEY-----
-     (contenido de tu archivo .p8)
-     -----END PRIVATE KEY-----
-   ```
+Cómo obtener/renovar el token:
+
+1. Abre [music.apple.com](https://music.apple.com) en el navegador.
+2. Abre DevTools (F12) → pestaña **Network** → navega o reproduce algo.
+3. Filtra por `amp-api` y copia el valor del header `authorization` de cualquier request (sin el prefijo `Bearer `). Es el JWT cuyo header decodificado dice `"kid":"WebPlayKid"`.
+4. Pégalo en `.env` como `APPLE_MUSIC_MEDIA_API_TOKEN=` y reinicia Lavalink (`docker compose up -d --force-recreate lavalink`).
+
+⚠️ Apple emite estos tokens con **~1 mes de validez**. Si los links de Apple Music empiezan a fallar con error, repite los pasos de arriba para renovarlo.
+
+Nota: dentro del bundle JS de la página hay otro JWT (emisor con `"origin":"*.apple.com"`) que **no** funciona contra la API del catálogo (devuelve 401) — asegúrate de copiar el de `WebPlayKid` que aparece en los requests reales de Network.
+
+La alternativa oficial (cuenta de Apple Developer de $99/año + private key de MusicKit con `keyID`/`teamID`/`musicKitKey`) también la soporta LavaSrc, pero no vale la pena para uso personal.
 
 ## 3. Levantar Lavalink
 

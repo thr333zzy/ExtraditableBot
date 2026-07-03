@@ -59,7 +59,7 @@ plugins:
       - "ytsearch:%QUERY%"
     sources:
       spotify: true
-      applemusic: false # habilítalo manualmente aquí una vez tengas credenciales de MusicKit (ver README)
+      applemusic: true
       deezer: false
       youtube: false
     spotify:
@@ -75,7 +75,10 @@ plugins:
       albumLoadLimit: 6
     applemusic:
       countryCode: "US"
-      # keyID / teamID / musicKitKey van aquí. Ver README para instrucciones (requiere el archivo .p8 de Apple).
+      # Token público del reproductor web de music.apple.com (JWT, el de kid "WebPlayKid").
+      # Apple los emite con ~1 mes de validez; si los links de Apple Music devuelven error,
+      # hay que re-extraerlo (ver README / .env.example).
+      mediaAPIToken: "${APPLE_MUSIC_MEDIA_API_TOKEN:}"
       playlistLoadLimit: 6
       albumLoadLimit: 6
 
