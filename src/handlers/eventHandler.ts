@@ -1,5 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { BotClient } from '../structures/BotClient';
 
 interface EventModule {
@@ -22,7 +23,7 @@ export async function loadEvents(client: BotClient): Promise<void> {
 
     for (const file of files) {
       const filePath = join(categoryPath, file);
-      const imported = (await import(filePath)) as { default?: EventModule };
+      const imported = (await import(pathToFileURL(filePath).href)) as { default?: EventModule };
       const event = imported.default;
 
       if (!event?.name || !event.execute) {

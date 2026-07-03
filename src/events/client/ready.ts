@@ -2,7 +2,7 @@ import { ActivityType, type Client } from 'discord.js';
 import type { BotClient } from '../../structures/BotClient';
 
 export default {
-  name: 'ready',
+  name: 'clientReady',
   once: true,
   async execute(readyClient: Client<true>, client: BotClient) {
     console.log(`[ready] Sesión iniciada como ${readyClient.user.tag}`);

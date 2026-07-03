@@ -1,5 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { REST, Routes } from 'discord.js';
 import { env } from './config/env';
 import type { Command } from './structures/Command';
@@ -17,7 +18,7 @@ async function main() {
 
     for (const file of files) {
       const filePath = join(categoryPath, file);
-      const imported = (await import(filePath)) as { default?: Command };
+      const imported = (await import(pathToFileURL(filePath).href)) as { default?: Command };
       if (!imported.default?.data) continue;
       body.push(imported.default.data.toJSON());
     }

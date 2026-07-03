@@ -1,5 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { BotClient } from '../structures/BotClient';
 import type { Command } from '../structures/Command';
 
@@ -15,7 +16,7 @@ export async function loadCommands(client: BotClient): Promise<void> {
 
     for (const file of files) {
       const filePath = join(categoryPath, file);
-      const imported = (await import(filePath)) as { default?: Command };
+      const imported = (await import(pathToFileURL(filePath).href)) as { default?: Command };
       const command = imported.default;
 
       if (!command?.data || !command.execute) {
