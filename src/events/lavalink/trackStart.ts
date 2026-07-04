@@ -1,4 +1,3 @@
-import { TextChannel } from 'discord.js';
 import type { Player, Track } from 'lavalink-client';
 import type { BotClient } from '../../structures/BotClient';
 import { nowPlayingEmbed } from '../../structures/musicEmbeds';
@@ -11,7 +10,9 @@ export default {
   // lavalink-client emite (player, track, payload) — el eventHandler añade `client` al final.
   async execute(player: Player, track: Track, _payload: unknown, client: BotClient) {
     const channel = client.channels.cache.get(player.textChannelId ?? '');
-    if (!(channel instanceof TextChannel)) return;
+    // isSendable() acepta cualquier canal donde el bot pueda escribir: texto, chat de voz,
+    // hilos, anuncios. (instanceof TextChannel excluía el chat de voz/hilos y el embed no salía.)
+    if (!channel?.isSendable()) return;
 
     const previous = client.nowPlayingMessages.get(player.guildId);
     if (previous) {
